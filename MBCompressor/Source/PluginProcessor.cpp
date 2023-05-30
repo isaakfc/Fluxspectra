@@ -313,55 +313,6 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        // Get input and output buffer
-        auto* input = buffer.getReadPointer ( channel );
-        auto* output = buffer.getWritePointer (channel);
-        
-        lR4LowPassVec[channel].updateCoefs(crossoverFreq->get());
-        lR4HighPassVec[channel].updateCoefs(crossoverFreq->get());
-
-        for (auto sample = 0; sample < buffer.getNumSamples() ; sample++)
-        {
-            
-//            // update multiband filters
-            
-//
-//            // Get input sample and create a copy for processing
-//              float inputSample = input[sample];
-//            float processingSample = inputSample;
-//            if(delayOn->get())
-//            {
-//                float delaySamples = (delay->get()/1000) * mSampleRate;
-//                processingSample = rbufferVec[channel].readInterp(delaySamples);
-//            }
-//            rbufferVec[channel].write(inputSample);
-//            float lowerBand = lR4LowPassVec[channel].process(processingSample);
-//            float upperBand = lR4HighPassVec[channel].process(processingSample);
-//            float joinedBands = lowerBand  + upperBand;
-//              output[sample] = joinedBands;
-//            float processedSample = joinedBands * juce::Decibels::decibelsToGain(inputGain->get());
-//            processedSample = processingSample * juce::Decibels::decibelsToGain(makeupGain->get());
-//            output[sample] = equalPowerMix(processingSample, processedSample, mix->get());
-            
-//            float inputSample = input[sample];
-//            inputSample = inputSample * juce::Decibels::decibelsToGain(inputGain->get());
-//            float attackTimeSeconds = attack->get() / 1000;
-//            float releaseTimeSeconds = release->get() / 1000;
-//            float kneeDb = knee->get() * 20;
-//            dynamicsVec[channel].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), threshold->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratio->get());
-//            float outputSample = dynamicsVec[channel].process(inputSample, inputSample);
-//            outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
-//            output[sample] = outputSample;
-
-
-        }
-
-        // ..do something to the data...
-    }
-    
-    
 
 //     Check if a sidechain input is available
     if (getTotalNumInputChannels() > getMainBusNumInputChannels() && sidechain->get())
@@ -381,14 +332,7 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             {
                 float inputSample = input[sample];
                 float sideChainSample = side[sample];
-                inputSample = inputSample * juce::Decibels::decibelsToGain(inputGain->get());
-                float attackTimeSeconds = attackLb->get() / 1000;
-                float releaseTimeSeconds = releaseLb->get() / 1000;
-                float kneeDb = kneeLb->get() * 20;
-                dynamicsVec[channel].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdLb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioLb->get());
-                float outputSample = dynamicsVec[channel].process(inputSample, sideChainSample);
-                outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
-                output[sample] = outputSample;
+                output[sample] = processCore(inputSample, sideChainSample, channel);
             }
         }
     }
@@ -403,50 +347,8 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 
             for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
             {
-                // Get input sample and store for mix parameter
                 float inputSample = input[sample];
-                float processingSample = inputSample;
-
-                //Look-ahead delay processing
-                if(delayOn->get())
-                {
-                    float delaySamples = (delay->get()/1000) * mSampleRate;
-                    processingSample = rbufferVec[channel].readInterp(delaySamples);
-                }
-                rbufferVec[channel].write(inputSample);
-
-                //Update Linwitz Riley filters
-                lRLowPassVec[channel].updateCoefs(crossoverFreq->get());
-                lRHighPassVec[channel].updateCoefs(crossoverFreq->get());
-                // Split into bands
-                float lowerBand = lRLowPassVec[channel].process(processingSample);
-                float upperBand = lRHighPassVec[channel].process(processingSample);
-                // Apply input gain
-                lowerBand = lowerBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
-                upperBand = upperBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
-                float joinedInputBands = lowerBand + upperBand * -1;
-                // Cook parameters for Low band
-                float attackTimeSeconds = attackLb->get() / 1000;
-                float releaseTimeSeconds = releaseLb->get() / 1000;
-                float kneeDb = kneeLb->get() * 20;
-                // Set Dynamics processor for low band
-                dynamicsVec[channel].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdLb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioLb->get());
-                // Cook parameters for High band
-                attackTimeSeconds = attackHb->get() / 1000;
-                releaseTimeSeconds = releaseHb->get() / 1000;
-                kneeDb = kneeHb->get() * 20;
-                // Set Dynamics processor for high band
-                dynamicsVec[channel+2].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdHb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioHb->get());
-                // Process Dynamics processor
-                float outputSampleLb = dynamicsVec[channel].process(lowerBand, lowerBand);
-                float outputSampleHb = dynamicsVec[channel+2].process(upperBand, upperBand);
-                // Add seperate bands back together
-                float outputSample = outputSampleLb + outputSampleHb  * -1;
-                //Apply output gain
-                outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
-                outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
-                float processedMix = mix->get() / 100;
-                output[sample] = (1-processedMix) * joinedInputBands + processedMix * outputSample;
+                output[sample] = processCore(inputSample, inputSample, channel);
             }
         }
     }
@@ -508,5 +410,57 @@ juce::AudioProcessor::BusesProperties Assesment2AudioProcessor::createBusesLayou
     }
     
     return bp;
+    
+}
+
+
+
+float Assesment2AudioProcessor::processCore(float inputSample, float sideChainInput, float channel)
+{
+    
+    float processingSample = inputSample;
+
+    //Look-ahead delay processing
+    if(delayOn->get())
+    {
+        float delaySamples = (delay->get()/1000) * mSampleRate;
+        processingSample = rbufferVec[channel].readInterp(delaySamples);
+    }
+    rbufferVec[channel].write(inputSample);
+
+    //Update Linwitz Riley filters
+    lRLowPassVec[channel].updateCoefs(crossoverFreq->get());
+    lRHighPassVec[channel].updateCoefs(crossoverFreq->get());
+    // Split into bands
+    float lowerBand = lRLowPassVec[channel].process(processingSample);
+    float upperBand = lRHighPassVec[channel].process(processingSample);
+    // Apply input gain
+    lowerBand = lowerBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
+    upperBand = upperBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
+    float joinedInputBands = lowerBand + upperBand * -1;
+    // Cook parameters for Low band
+    float attackTimeSeconds = attackLb->get() / 1000;
+    float releaseTimeSeconds = releaseLb->get() / 1000;
+    float kneeDb = kneeLb->get() * 20;
+    // Set Dynamics processor for low band
+    dynamicsVec[channel].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdLb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioLb->get());
+    // Cook parameters for High band
+    attackTimeSeconds = attackHb->get() / 1000;
+    releaseTimeSeconds = releaseHb->get() / 1000;
+    kneeDb = kneeHb->get() * 20;
+    // Set Dynamics processor for high band
+    dynamicsVec[channel+2].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdHb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioHb->get());
+    // Process Dynamics processor
+    float outputSampleLb = dynamicsVec[channel].process(lowerBand, sideChainInput);
+    float outputSampleHb = dynamicsVec[channel+2].process(upperBand, sideChainInput);
+    // Add seperate bands back together
+    float outputSample = outputSampleLb + outputSampleHb  * -1;
+    //Apply output gain
+    outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
+    outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
+    float processedMix = mix->get() / 100;
+    return (1-processedMix) * joinedInputBands + processedMix * outputSample;
+    
+    
     
 }

@@ -60,6 +60,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     juce::AudioProcessor::BusesProperties createBusesLayout();
+    float processCore(float inputSample, float sideChain, float channel);
 
 private:
     juce::AudioProcessorValueTreeState parameters;

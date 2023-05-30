@@ -16,3 +16,6 @@ float equalPowerMix(float input, float output, float mix)
     mix = mix / 100;
     return sqrt((1.0 - mix)/2) * input + sqrt(mix/2) * output;
 }
+
+
+
