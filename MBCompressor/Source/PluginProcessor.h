@@ -59,11 +59,15 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
+    float getRMSValue(const int channel) const;
+    float getRMSPost(const int channel) const;
+    
     juce::AudioProcessor::BusesProperties createBusesLayout();
     float processCore(float inputSample, float sideChain, float channel);
+    
+    juce::AudioProcessorValueTreeState parameters;
 
 private:
-    juce::AudioProcessorValueTreeState parameters;
     juce::AudioParameterFloat* inputGain   { nullptr };
     juce::AudioParameterFloat* makeupGain   { nullptr };
     juce::AudioParameterFloat* mix  { nullptr };
@@ -86,7 +90,7 @@ private:
     juce::AudioParameterChoice* detectionMode { nullptr };
     juce::AudioParameterChoice* compressionSource { nullptr };
     
-    
+    juce::LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight, rmsLevelLeftPost, rmsLevelRightPost ;
     
     int mSampleRate;
     std::vector<RingBuffer> rbufferVec;

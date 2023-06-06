@@ -17,7 +17,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     
     const auto ratioRange = juce::NormalisableRange<float> { 1.0f, 30.0f, 0.1f, 1.0f };
     const auto crossoverRange = juce::NormalisableRange<float> { 40.0f, 20000.0f, 1.f, 0.3f };
-    
+    const auto mixRange = juce::NormalisableRange<float> { 0.0f, 100.0f, 1.f, 1.0f };
     // Audio parameter floats
     // Multiband float Parameters
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::attackLb, 1),
@@ -90,9 +90,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
                                                             1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::mix, 1),
                                                             ParamIDs::mix,
-                                                            0.0f,
-                                                            100.0f,
-                                                            0.0f));
+                                                            mixRange,
+                                                            100.0f));
     
    
     // Audio parameter choices
@@ -268,7 +267,16 @@ void Assesment2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
         dynamicsVec.push_back(DynamicsEngine(sampleRate));
         dynamicsVec.push_back(DynamicsEngine(sampleRate));
     }
-   
+    
+    rmsLevelLeft.reset(sampleRate, 0.5);
+    rmsLevelRight.reset(sampleRate, 0.5);
+    rmsLevelLeftPost.reset(sampleRate, 0.5);
+    rmsLevelRightPost.reset(sampleRate, 0.5);
+    
+    rmsLevelLeft.setCurrentAndTargetValue(-100.f);
+    rmsLevelRight.setCurrentAndTargetValue(-100.f);
+    rmsLevelLeftPost.setCurrentAndTargetValue(-100.f);
+    rmsLevelRightPost.setCurrentAndTargetValue(-100.f);
     
 }
 
@@ -312,8 +320,7 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-
+    
 //     Check if a sidechain input is available
     if (getTotalNumInputChannels() > getMainBusNumInputChannels() && sidechain->get())
     {
@@ -338,6 +345,22 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     }
     else
     {
+        rmsLevelLeft.skip(buffer.getNumSamples());
+        rmsLevelRight.skip(buffer.getNumSamples());
+        {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
+        if (value < rmsLevelLeft.getCurrentValue())
+            rmsLevelLeft.setTargetValue(value);
+        else
+            rmsLevelLeft.setCurrentAndTargetValue(value);
+        }
+        {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
+        if (value < rmsLevelRight.getCurrentValue())
+            rmsLevelRight.setTargetValue(value);
+        else
+            rmsLevelRight.setCurrentAndTargetValue(value);
+        }
         for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
         {
 
@@ -352,6 +375,26 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             }
         }
     }
+    
+    rmsLevelLeftPost.skip(buffer.getNumSamples());
+    rmsLevelRightPost.skip(buffer.getNumSamples());
+    {
+    const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
+    if (value < rmsLevelLeftPost.getCurrentValue())
+        rmsLevelLeftPost.setTargetValue(value);
+    else
+        rmsLevelLeftPost.setCurrentAndTargetValue(value);
+    }
+    {
+    const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
+    if (value < rmsLevelRightPost.getCurrentValue())
+        rmsLevelRightPost.setTargetValue(value);
+    else
+        rmsLevelRightPost.setCurrentAndTargetValue(value);
+    }
+    
+    
+    
 }
 
 //==============================================================================
@@ -362,7 +405,8 @@ bool Assesment2AudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* Assesment2AudioProcessor::createEditor()
 {
-    return new juce::GenericAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor (*this);
+    return new Assesment2AudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -418,6 +462,7 @@ juce::AudioProcessor::BusesProperties Assesment2AudioProcessor::createBusesLayou
 float Assesment2AudioProcessor::processCore(float inputSample, float sideChainInput, float channel)
 {
     
+    
     float processingSample = inputSample;
 
     //Look-ahead delay processing
@@ -463,4 +508,26 @@ float Assesment2AudioProcessor::processCore(float inputSample, float sideChainIn
     
     
     
+}
+
+
+float Assesment2AudioProcessor::getRMSValue(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeft.getCurrentValue();
+    if (channel == 1)
+        return rmsLevelRight.getCurrentValue();
+    return 0.f;
+}
+
+
+float Assesment2AudioProcessor::getRMSPost(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeftPost.getCurrentValue();
+    if (channel == 1)
+        return rmsLevelRightPost.getCurrentValue();
+    return 0.f;
 }

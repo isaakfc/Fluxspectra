@@ -3,7 +3,27 @@
 <JUCERPROJECT id="HRRPX4" name="Assesment2" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="IhwDM2" name="Assesment2">
+    <GROUP id="{2AF98DA3-93B0-920F-A71F-DD4AEC3F47C8}" name="Assets">
+      <FILE id="oj2DCd" name="if-logo-new.png" compile="0" resource="1" file="Source/Assets/if-logo-new.png"/>
+      <FILE id="h2ouFR" name="LexendPeta-Bold.ttf" compile="0" resource="1"
+            file="Source/Assets/LexendPeta-Bold.ttf"/>
+      <FILE id="EEXdd5" name="LexendPeta-ExtraBold.ttf" compile="0" resource="1"
+            file="Source/Assets/LexendPeta-ExtraBold.ttf"/>
+      <FILE id="ePwnAY" name="LexendPeta-Regular.ttf" compile="0" resource="1"
+            file="Source/Assets/LexendPeta-Regular.ttf"/>
+    </GROUP>
     <GROUP id="{6A9D38C8-E7D6-1058-F7D7-B9710907924B}" name="Source">
+      <GROUP id="{2A51E711-DD6B-9675-421C-B17ADE777308}" name="GUI">
+        <FILE id="hYmeTt" name="Colours.h" compile="0" resource="0" file="Source/GUI/Colours.h"/>
+        <FILE id="sfwpKB" name="CustomUI.cpp" compile="1" resource="0" file="Source/GUI/CustomUI.cpp"/>
+        <FILE id="PwZqhr" name="CustomUI.h" compile="0" resource="0" file="Source/GUI/CustomUI.h"/>
+        <FILE id="CHAX1E" name="GlobalControls.h" compile="0" resource="0"
+              file="Source/GUI/GlobalControls.h"/>
+        <FILE id="he4X8J" name="LeftSection.h" compile="0" resource="0" file="Source/GUI/LeftSection.h"/>
+        <FILE id="s8qP63" name="LogoAndTitle.h" compile="0" resource="0" file="Source/GUI/LogoAndTitle.h"/>
+        <FILE id="Aw64QV" name="RightSection.h" compile="0" resource="0" file="Source/GUI/RightSection.h"/>
+        <FILE id="WlCngP" name="VerticalMeter.h" compile="0" resource="0" file="Source/GUI/VerticalMeter.h"/>
+      </GROUP>
       <FILE id="JV4Igj" name="ParamsIDs.h" compile="0" resource="0" file="Source/ParamsIDs.h"/>
       <FILE id="BnRapg" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
