@@ -10,22 +10,22 @@
 
 #pragma once
 
-enum CompressionMode
-{
-    Compressor,
-    Limiter
-};
-enum DetectionType
-{
-    Peak,
-    RMS
-};
+//enum CompressionMode
+//{
+//    Compressor,
+//    Limiter
+//};
+//enum DetectionType
+//{
+//    Peak,
+//    RMS
+//};
 
 class DynamicsEngine
 {
 public:
     DynamicsEngine(int sampleRate);
-    void setParameters(int compMode, bool feedback, int detection,float threshold, float attack, float release, float knee, float ratio);
+    void setParameters(bool compOn, bool feedback, bool peakOn,float threshold, float attack, float release, float knee, float ratio);
     float process(float input, float sideChain);
     float processPeakCompressor(float input, float sideChain);
     float processRMSCompressor(float input, float sideChain);
@@ -38,8 +38,10 @@ public:
 protected:
     int mSampleRate;
     bool mfeedback;
-    CompressionMode mCompMode;
-    DetectionType mDetection;
+//    CompressionMode mCompMode;
+//    DetectionType mDetection;
+    bool mCompressionOn;
+    bool mPeakOn;
     float mT;
     float mA;
     float mR;

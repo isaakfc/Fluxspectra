@@ -67,6 +67,44 @@ class CustomTextButton : public juce::LookAndFeel_V4
 
 
 
+
+class CustomToggle : public juce::LookAndFeel_V4
+{
+public:
+    void drawButtonBackground(juce::Graphics& g,
+                              juce::Button& button,
+                              const juce::Colour& /*backgroundColour*/,
+                              bool shouldDrawButtonAsHighlighted,
+                              bool shouldDrawButtonAsDown) override
+    {
+        // Customize the button's background
+        auto buttonArea = button.getLocalBounds().toFloat();
+        auto backgroundColour = button.getToggleState() ? MyColours::blue : MyColours::blackGrey;
+        g.fillAll(backgroundColour);
+        g.setColour(juce::Colours::black); // Set your desired border color
+        g.drawRoundedRectangle(buttonArea, 6.0f, 4.0f);
+    }
+
+    void drawButtonText(juce::Graphics& g, juce::TextButton& textButton, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
+    {
+        // Customize the button's text
+        juce::Font font3 ("Helvetica", 10.0f, juce::Font::plain);
+
+        
+        g.setFont(font3);
+        g.setColour(juce::Colours::white); // Change text color here
+        g.drawText(textButton.getButtonText(),
+                   textButton.getLocalBounds(),
+                   juce::Justification::centred,
+                   true);
+    }
+};
+
+
+
+
+
+
 class ToggleTextButton : public juce::TextButton
 {
 public:
@@ -94,6 +132,7 @@ public:
 
         // Set the color of the button's text
         g.setColour(juce::Colours::white); // Replace with your desired color
+        
 
         // Set the font of the button's text
         g.setFont(juce::Font(16.0f)); // Replace 16.0f with your desired font size

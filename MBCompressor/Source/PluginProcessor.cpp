@@ -93,16 +93,6 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
                                                             mixRange,
                                                             100.0f));
     
-   
-    // Audio parameter choices
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID(ParamIDs::mode, 1),
-                                                            ParamIDs::mode,
-                                                            juce::StringArray({"Compressor", "Limiter"}),
-                                                            0));
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID(ParamIDs::detection, 1),
-                                                            ParamIDs::detection,
-                                                            juce::StringArray({"Peak", "RMS"}),
-                                                            0));
     
     // Audio parameter bools
     layout.add(std::make_unique<juce::AudioParameterBool> (juce::ParameterID(ParamIDs::delayButton, 1),
@@ -114,7 +104,21 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     layout.add(std::make_unique<juce::AudioParameterBool> (juce::ParameterID(ParamIDs::source, 1),
                                                            ParamIDs::source,
                                                            false));
+    layout.add(std::make_unique<juce::AudioParameterBool> (juce::ParameterID(ParamIDs::mode, 1),
+                                                           ParamIDs::mode,
+                                                           true));
+    layout.add(std::make_unique<juce::AudioParameterBool> (juce::ParameterID(ParamIDs::detection, 1),
+                                                           ParamIDs::detection,
+                                                           true));
 
+    // These bools do not actually control anything in the process block, they are just needed to store states
+    layout.add(std::make_unique<juce::AudioParameterBool> (juce::ParameterID(ParamIDs::limitOn, 1),
+                                                           ParamIDs::limitOn,
+                                                           false));
+    layout.add(std::make_unique<juce::AudioParameterBool> (juce::ParameterID(ParamIDs::detectionRMS, 1),
+                                                           ParamIDs::detectionRMS,
+                                                           false));
+    
     
     return layout;
 }
@@ -159,18 +163,10 @@ Assesment2AudioProcessor::Assesment2AudioProcessor()
     storeBoolParam(delayOn, ParamIDs::delayButton);
     storeBoolParam(feedback, ParamIDs::feedback);
     storeBoolParam(sidechain, ParamIDs::source);
+    storeBoolParam(compressionModep, ParamIDs::mode);
+    storeBoolParam(detectionMode, ParamIDs::detection);
     
-    auto storeChoiceParam = [&parameters = this->parameters](auto& param, const auto& paramID)
-    {
-        param = dynamic_cast<juce::AudioParameterChoice*> (parameters.getParameter (paramID));
-        jassert (param != nullptr);
-    };
-    
-    storeChoiceParam(compressionModep, ParamIDs::mode);
-    storeChoiceParam(detectionMode, ParamIDs::detection);
-    
-    
-    
+
 }
 
 Assesment2AudioProcessor::~Assesment2AudioProcessor()
@@ -488,13 +484,13 @@ float Assesment2AudioProcessor::processCore(float inputSample, float sideChainIn
     float releaseTimeSeconds = releaseLb->get() / 1000;
     float kneeDb = kneeLb->get() * 20;
     // Set Dynamics processor for low band
-    dynamicsVec[channel].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdLb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioLb->get());
+    dynamicsVec[channel].setParameters(compressionModep->get(), feedback->get(), detectionMode->get(), thresholdLb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioLb->get());
     // Cook parameters for High band
     attackTimeSeconds = attackHb->get() / 1000;
     releaseTimeSeconds = releaseHb->get() / 1000;
     kneeDb = kneeHb->get() * 20;
     // Set Dynamics processor for high band
-    dynamicsVec[channel+2].setParameters(compressionModep->getIndex(), feedback->get(), detectionMode->getIndex(), thresholdHb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioHb->get());
+    dynamicsVec[channel+2].setParameters(compressionModep->get(), feedback->get(), detectionMode->get(), thresholdHb->get(), attackTimeSeconds, releaseTimeSeconds, kneeDb, ratioHb->get());
     // Process Dynamics processor
     float outputSampleLb = dynamicsVec[channel].process(lowerBand, sideChainInput);
     float outputSampleHb = dynamicsVec[channel+2].process(upperBand, sideChainInput);

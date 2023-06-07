@@ -31,26 +31,38 @@ struct GlobalControls : juce::Component
         addAndMakeVisible(crossoverSlider);
         feedbackButton.setButtonText("FEEDBACK");
         sidechainButton.setButtonText("SIDECHAIN");
+        compressionButton.setLookAndFeel(&customToggleLAF);
+        limitingButton.setLookAndFeel(&customToggleLAF);
+        rmsButton.setLookAndFeel(&customToggleLAF);
+        peakButton.setLookAndFeel(&customToggleLAF);
         addAndMakeVisible(feedbackButton);
         addAndMakeVisible(sidechainButton);
         addAndMakeVisible(compressionButton);
         addAndMakeVisible(limitingButton);
-        compressionButton  .onClick = [this] { updateToggleState (&compressionButton,   "Male");   };
-        limitingButton.onClick = [this] { updateToggleState (&limitingButton, "Female"); };
-        
+        addAndMakeVisible(rmsButton);
+        addAndMakeVisible(peakButton);
+        compressionButton.onClick = [this] { updateToggleState (&compressionButton);   };
+        limitingButton.onClick = [this] { updateToggleState (&limitingButton); };
+        peakButton.onClick = [this] { updateToggleState (&peakButton);   };
+        rmsButton.onClick = [this] { updateToggleState (&rmsButton);   };
         compressionButton.setClickingTogglesState (true);
         limitingButton.setClickingTogglesState (true);
+        rmsButton.setClickingTogglesState (true);
+        peakButton.setClickingTogglesState (true);
+        
         
         compressionButton  .setRadioGroupId (CompressionTypeButtons);
         limitingButton.setRadioGroupId (CompressionTypeButtons);
+        rmsButton.setRadioGroupId(DetectionTypeButtons);
+        peakButton.setRadioGroupId(DetectionTypeButtons);
 
         
         mixAttachment = std::make_unique<Attachment>(apvts,ParamIDs::mix,mixSlider);
         crossoverAttachment = std::make_unique<Attachment>(apvts,ParamIDs::crossover,crossoverSlider);
         feedbackAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::feedback, feedbackButton);
         sidechainAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::source, sidechainButton);
-//        limitingAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::mode, limitingButton);
-//        compressionAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::mode, compressionButton);
+        compressionAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::mode, compressionButton);
+        limitAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::limitOn, limitingButton);
     }
     void paint(juce::Graphics& g) override
     {
@@ -89,39 +101,33 @@ struct GlobalControls : juce::Component
         bounds = bounds.removeFromBottom(70);
         bounds.reduce(20, 20);
         sidechainButton.setBounds(bounds);
-        bounds = getLocalBounds();
-        bounds = bounds.removeFromTop(bounds.getHeight() - 180);
-        bounds = bounds.removeFromBottom(bounds.getHeight() - 70);
-        bounds = bounds.removeFromTop(bounds.getHeight()/2);
-        bounds.reduce(10, 10);
-        myComboBox.setBounds(bounds);
-        
-        
-        compressionButton  .setBounds (20, 90, getWidth() - 30, 20);
-        limitingButton.setBounds (20, 110, getWidth() - 30, 20);
+        compressionButton.setBounds (10, 95, (getWidth() - 15) / 2, 33);
+        limitingButton  .setBounds (10 + ((getWidth() - 15) / 2), 95, (getWidth() - 15) / 2, 33);
+        peakButton.setBounds (10, 138, (getWidth() - 15) / 2, 33);
+        rmsButton  .setBounds (10 + ((getWidth() - 15) / 2), 138, (getWidth() - 15) / 2, 33);
     }
     
-    void updateToggleState (juce::Button* button, juce::String name)
+    void updateToggleState (juce::Button* button)
     {
-        auto state = button->getToggleState();
-        juce::String stateString = state ? "ON" : "OFF";
 
-        juce::Logger::outputDebugString (name + " Button changed to " + stateString);
     }
     
 private:
+    
+    juce::CustomToggle customToggleLAF;
     juce::Slider mixSlider, crossoverSlider;
     juce::Label MixLabel, crossoverLabel;
     juce::ToggleTextButton feedbackButton, sidechainButton;
     juce::ComboBox myComboBox;
-    juce::TextButton compressionButton   { "Compression" },limitingButton { "Limiting" };
+    juce::TextButton compressionButton   { "COMPRESS" },limitingButton { "LIMIT" }, rmsButton{"RMS"}, peakButton{"PEAK"};
+    
 
     
     using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     std::unique_ptr<Attachment> crossoverAttachment,
                                 mixAttachment;
     using AttachmentButton = juce::AudioProcessorValueTreeState::ButtonAttachment;
-    std::unique_ptr<AttachmentButton> feedbackAttachment, sidechainAttachment, compressionAttachment, limitingAttachment;
+    std::unique_ptr<AttachmentButton> feedbackAttachment, sidechainAttachment, compressionAttachment, limitAttachment;
     using AttachmentCombo = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     std::unique_ptr<AttachmentCombo> typeAttachment;
 };

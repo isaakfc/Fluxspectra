@@ -19,20 +19,20 @@ DynamicsEngine::DynamicsEngine(int sampleRate)
     mYPrev = 0;
 }
 
-void DynamicsEngine::setParameters(int compMode, bool feedback, int detection, float threshold, float attack, float release, float knee, float ratio)
+void DynamicsEngine::setParameters(bool compOn, bool feedback, bool peakOn,float threshold, float attack, float release, float knee, float ratio)
 {
     
-    mCompMode   = static_cast<CompressionMode>(compMode);
-    mDetection  = static_cast<DetectionType>(detection);
-    mfeedback   = feedback;
-    mA          = attack;
-    mR          = release;
-    mW          = knee;
-    mRa         = ratio;
-    mT          = threshold;
-    alphaA1     = std::exp(-std::log(9)/(mSampleRate * attack));
-    alphaR1     = std::exp(-std::log(9)/(mSampleRate * release));
-    mGainSmooth = 0;
+    mCompressionOn = compOn;
+    mPeakOn        = peakOn;
+    mfeedback      = feedback;
+    mA             = attack;
+    mR             = release;
+    mW             = knee;
+    mRa            = ratio;
+    mT             = threshold;
+    alphaA1        = std::exp(-std::log(9)/(mSampleRate * attack));
+    alphaR1        = std::exp(-std::log(9)/(mSampleRate * release));
+    mGainSmooth    = 0;
     
 }
 
@@ -40,33 +40,61 @@ float DynamicsEngine::process(float input, float sideChain)
 {
     float output = 0;
     
-    switch (mCompMode)
+//    switch (mCompressionOn)
+//    {
+//        case true:
+//        {
+//            if (mPeakOn == true)
+//            {
+//                output = processPeakCompressor(input, sideChain);
+//            }
+//            else
+//            {
+//                output = processRMSCompressor(input, sideChain);
+//            }
+//        }
+//            break;
+//        case false:
+//        {
+//            if (mPeakOn == true)
+//            {
+//                output = processPeakLimiter(input, sideChain);
+//            }
+//            else
+//            {
+//                output = processRMSLimiter(input, sideChain);
+//            }
+//        }
+//            break;
+//    }
+    
+    if (mCompressionOn)
     {
-        case Compressor:
+        if (mPeakOn)
         {
-            if (mDetection == Peak)
-            {
-                output = processPeakCompressor(input, sideChain);
-            }
-            else
-            {
-                output = processRMSCompressor(input, sideChain);
-            }
+            std::cout << "PEAK COMPRESSION" << std::endl;
+            output = processPeakCompressor(input, sideChain);
         }
-            break;
-        case Limiter:
+        else
         {
-            if (mDetection == Peak)
-            {
-                output = processPeakLimiter(input, sideChain);
-            }
-            else
-            {
-                output = processRMSLimiter(input, sideChain);
-            }
+            std::cout << "RMS COMPRESSION" << std::endl;
+            output = processRMSCompressor(input, sideChain);
         }
-            break;
     }
+    else
+    {
+        if (mPeakOn)
+        {
+            std::cout << "PEAK LIMITING" << std::endl;
+            output = processPeakLimiter(input, sideChain);
+        }
+        else
+        {
+            std::cout << "RMS LIMITING" << std::endl;
+            output = processRMSLimiter(input, sideChain);
+        }
+    }
+
     return output;
 }
 

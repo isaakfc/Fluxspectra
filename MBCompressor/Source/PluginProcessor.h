@@ -86,8 +86,8 @@ private:
     juce::AudioParameterBool* delayOn { nullptr };
     juce::AudioParameterBool* feedback { nullptr };
     juce::AudioParameterBool* sidechain { nullptr };
-    juce::AudioParameterChoice* compressionModep { nullptr };
-    juce::AudioParameterChoice* detectionMode { nullptr };
+    juce::AudioParameterBool* compressionModep { nullptr };
+    juce::AudioParameterBool* detectionMode { nullptr };
     juce::AudioParameterChoice* compressionSource { nullptr };
     
     juce::LinearSmoothedValue<float> rmsLevelLeft, rmsLevelRight, rmsLevelLeftPost, rmsLevelRightPost ;

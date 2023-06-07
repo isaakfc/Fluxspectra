@@ -25,13 +25,14 @@ namespace ParamIDs
     inline constexpr auto ratioHb { "Ratio High Band" };
     inline constexpr auto gain { "Input Gain" };
     inline constexpr auto makeup { "Makeup Gain" };
-    inline constexpr auto mode { "Compression Mode" };
+    inline constexpr auto mode { "Compression On" };
     inline constexpr auto source { "Sidechain Input" };
     inline constexpr auto crossover { "Crossover Point" };
     inline constexpr auto delay { "Lookahead-Delay" };
     inline constexpr auto delayButton { "Lookahead-Delay on/off" };
     inline constexpr auto feedback { "Feedback on/off" };
     inline constexpr auto mix { "Mix" };
-    inline constexpr auto detection { "Detection Mode" };
-   
+    inline constexpr auto detection { "Peak on" };
+    inline constexpr auto detectionRMS { "RMS on" };
+    inline constexpr auto limitOn { "Limiting on" };
 }
