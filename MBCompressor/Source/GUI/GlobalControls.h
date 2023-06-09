@@ -63,6 +63,8 @@ struct GlobalControls : juce::Component
         sidechainAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::source, sidechainButton);
         compressionAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::mode, compressionButton);
         limitAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::limitOn, limitingButton);
+        peakAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::detection, peakButton);
+        RMSAttachment = std::make_unique<AttachmentButton>(apvts, ParamIDs::detectionRMS, rmsButton);
     }
     void paint(juce::Graphics& g) override
     {
@@ -127,7 +129,7 @@ private:
     std::unique_ptr<Attachment> crossoverAttachment,
                                 mixAttachment;
     using AttachmentButton = juce::AudioProcessorValueTreeState::ButtonAttachment;
-    std::unique_ptr<AttachmentButton> feedbackAttachment, sidechainAttachment, compressionAttachment, limitAttachment;
+    std::unique_ptr<AttachmentButton> feedbackAttachment, sidechainAttachment, compressionAttachment, limitAttachment, peakAttachment, RMSAttachment;
     using AttachmentCombo = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     std::unique_ptr<AttachmentCombo> typeAttachment;
 };

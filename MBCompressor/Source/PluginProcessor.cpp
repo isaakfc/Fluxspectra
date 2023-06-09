@@ -79,6 +79,16 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
                                                             -12.0f,
                                                             24.0f,
                                                             0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::gainLb, 1),
+                                                            ParamIDs::gainLb,
+                                                            -12.0f,
+                                                            24.0f,
+                                                            0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::gainHb, 1),
+                                                            ParamIDs::gainHb,
+                                                            -12.0f,
+                                                            24.0f,
+                                                            0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::crossover, 1),
                                                             ParamIDs::crossover,
                                                             crossoverRange,
@@ -140,6 +150,8 @@ Assesment2AudioProcessor::Assesment2AudioProcessor()
     
     storeFloatParam (inputGain,  ParamIDs::gain);
     storeFloatParam (makeupGain, ParamIDs::makeup);
+    storeFloatParam(hbGain, ParamIDs::gainHb);
+    storeFloatParam(lbGain, ParamIDs::gainLb);
     storeFloatParam(mix, ParamIDs::mix);
     storeFloatParam(delay, ParamIDs::delay);
     storeFloatParam(crossoverFreq, ParamIDs::crossover);
@@ -268,11 +280,19 @@ void Assesment2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     rmsLevelRight.reset(sampleRate, 0.5);
     rmsLevelLeftPost.reset(sampleRate, 0.5);
     rmsLevelRightPost.reset(sampleRate, 0.5);
+    rmsLevelLeftLB.reset(sampleRate, 0.5);
+    rmsLevelRightLB.reset(sampleRate, 0.5);
+    rmsLevelLeftUB.reset(sampleRate, 0.5);
+    rmsLevelRightUB.reset(sampleRate, 0.5);
     
     rmsLevelLeft.setCurrentAndTargetValue(-100.f);
     rmsLevelRight.setCurrentAndTargetValue(-100.f);
     rmsLevelLeftPost.setCurrentAndTargetValue(-100.f);
     rmsLevelRightPost.setCurrentAndTargetValue(-100.f);
+    rmsLevelLeftLB.setCurrentAndTargetValue(-100.f);
+    rmsLevelRightLB.setCurrentAndTargetValue(-100.f);
+    rmsLevelLeftUB.setCurrentAndTargetValue(-100.f);
+    rmsLevelRightUB.setCurrentAndTargetValue(-100.f);
     
 }
 
@@ -313,16 +333,21 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    juce::AudioBuffer<float> lowerBandBuffer(totalNumInputChannels, buffer.getNumSamples());
+    juce::AudioBuffer<float> upperBandBuffer(totalNumInputChannels, buffer.getNumSamples());
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    {
         buffer.clear (i, 0, buffer.getNumSamples());
-    
+        lowerBandBuffer.clear (i, 0, buffer.getNumSamples());
+        upperBandBuffer.clear (i, 0, buffer.getNumSamples());
+    }
 //     Check if a sidechain input is available
     if (getTotalNumInputChannels() > getMainBusNumInputChannels() && sidechain->get())
     {
         juce::AudioBuffer<float> mainInputOutput = getBusBuffer (buffer, true, 0);
         juce::AudioBuffer<float> sideChainInput = getBusBuffer (buffer, true, 1);
-
+        updateRms(buffer, rmsLevelLeft, rmsLevelRight);
         for (int channel = 0; channel < sideChainInput.getNumChannels(); ++channel)
         {
             const float* input = mainInputOutput.getReadPointer (channel);
@@ -335,28 +360,13 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             {
                 float inputSample = input[sample];
                 float sideChainSample = side[sample];
-                output[sample] = processCore(inputSample, sideChainSample, channel);
+                output[sample] = processCore(inputSample, sideChainSample, channel, lowerBandBuffer, upperBandBuffer, sample);
             }
         }
     }
     else
     {
-        rmsLevelLeft.skip(buffer.getNumSamples());
-        rmsLevelRight.skip(buffer.getNumSamples());
-        {
-        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-        if (value < rmsLevelLeft.getCurrentValue())
-            rmsLevelLeft.setTargetValue(value);
-        else
-            rmsLevelLeft.setCurrentAndTargetValue(value);
-        }
-        {
-        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
-        if (value < rmsLevelRight.getCurrentValue())
-            rmsLevelRight.setTargetValue(value);
-        else
-            rmsLevelRight.setCurrentAndTargetValue(value);
-        }
+        updateRms(buffer, rmsLevelLeft, rmsLevelRight);
         for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
         {
 
@@ -367,29 +377,22 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
             {
                 float inputSample = input[sample];
-                output[sample] = processCore(inputSample, inputSample, channel);
+                output[sample] = processCore(inputSample, inputSample, channel, lowerBandBuffer, upperBandBuffer,sample);
             }
         }
     }
     
-    rmsLevelLeftPost.skip(buffer.getNumSamples());
-    rmsLevelRightPost.skip(buffer.getNumSamples());
-    {
-    const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
-    if (value < rmsLevelLeftPost.getCurrentValue())
-        rmsLevelLeftPost.setTargetValue(value);
-    else
-        rmsLevelLeftPost.setCurrentAndTargetValue(value);
-    }
-    {
-    const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
-    if (value < rmsLevelRightPost.getCurrentValue())
-        rmsLevelRightPost.setTargetValue(value);
-    else
-        rmsLevelRightPost.setCurrentAndTargetValue(value);
-    }
+    updateRms(buffer, rmsLevelLeftPost, rmsLevelRightPost);
+    updateRms(lowerBandBuffer, rmsLevelLeftLB, rmsLevelRightLB);
+    updateRms(upperBandBuffer, rmsLevelLeftUB, rmsLevelRightUB);
     
-    
+//    for (auto i = 0; i < totalNumOutputChannels; ++i)
+//    {
+//        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+//        {
+//            DBG(lowerBandBuffer.getSample(i, sample));
+//        }
+//    }
     
 }
 
@@ -455,7 +458,7 @@ juce::AudioProcessor::BusesProperties Assesment2AudioProcessor::createBusesLayou
 
 
 
-float Assesment2AudioProcessor::processCore(float inputSample, float sideChainInput, float channel)
+float Assesment2AudioProcessor::processCore(float inputSample, float sideChainInput, int channel, juce::AudioBuffer<float>& lowerBandBuffer, juce::AudioBuffer<float>& upperBandBuffer, int sampleIndex)
 {
     
     
@@ -478,6 +481,11 @@ float Assesment2AudioProcessor::processCore(float inputSample, float sideChainIn
     // Apply input gain
     lowerBand = lowerBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
     upperBand = upperBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
+    // Apply band gain
+//    lowerBand = lowerBand * juce::Decibels::decibelsToGain(lbGain->get());
+//    upperBand = upperBand * juce::Decibels::decibelsToGain(hbGain->get());
+    lowerBandBuffer.setSample(channel, sampleIndex, lowerBand);
+    upperBandBuffer.setSample(channel, sampleIndex, upperBand);
     float joinedInputBands = lowerBand + upperBand * -1;
     // Cook parameters for Low band
     float attackTimeSeconds = attackLb->get() / 1000;
@@ -526,4 +534,51 @@ float Assesment2AudioProcessor::getRMSPost(const int channel) const
     if (channel == 1)
         return rmsLevelRightPost.getCurrentValue();
     return 0.f;
+}
+
+float Assesment2AudioProcessor::getRMSLb(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeftLB.getCurrentValue();
+    if (channel == 1)
+        return rmsLevelRightLB.getCurrentValue();
+    return 0.f;
+}
+
+float Assesment2AudioProcessor::getRMSUb(const int channel) const
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return rmsLevelLeftUB.getCurrentValue();
+    if (channel == 1)
+        return rmsLevelRightUB.getCurrentValue();
+    return 0.f;
+}
+
+
+
+
+void Assesment2AudioProcessor::updateRms(juce::AudioBuffer<float>& buffer, juce::LinearSmoothedValue<float>& rmsLevelLeft, juce::LinearSmoothedValue<float>& rmsLevelRight)
+{
+    rmsLevelLeft.skip(buffer.getNumSamples());
+    rmsLevelRight.skip(buffer.getNumSamples());
+
+    // Left channel
+    {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));
+        if (value < rmsLevelLeft.getCurrentValue())
+            rmsLevelLeft.setTargetValue(value);
+        else
+            rmsLevelLeft.setCurrentAndTargetValue(value);
+    }
+
+    // Right channel
+    {
+        const auto value = juce::Decibels::gainToDecibels(buffer.getRMSLevel(1, 0, buffer.getNumSamples()));
+        if (value < rmsLevelRight.getCurrentValue())
+            rmsLevelRight.setTargetValue(value);
+        else
+            rmsLevelRight.setCurrentAndTargetValue(value);
+    }
 }

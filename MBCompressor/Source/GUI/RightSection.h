@@ -34,8 +34,8 @@ struct RightSection : juce::Component, public juce::Timer
     {
 
         customColour = colour;
-        addAndMakeVisible(horizontalMeterL);
-        addAndMakeVisible(horizontalMeterR);
+        addAndMakeVisible(verticalMeterL);
+        addAndMakeVisible(verticalMeterR);
         fader.setSliderStyle(juce::Slider::LinearVertical);
         fader.setLookAndFeel(&myCustomLNF2);
         addAndMakeVisible(fader);
@@ -52,17 +52,17 @@ struct RightSection : juce::Component, public juce::Timer
     }
     void timerCallback() override
     {
-        horizontalMeterL.setLevel(processor.getRMSPost(0));
-        horizontalMeterR.setLevel(processor.getRMSPost(1));
-        horizontalMeterL.repaint();
-        horizontalMeterR.repaint();
+        verticalMeterL.setLevel(processor.getRMSPost(0));
+        verticalMeterR.setLevel(processor.getRMSPost(1));
+        verticalMeterL.repaint();
+        verticalMeterR.repaint();
     }
     void resized() override
     {
         auto bounds = getLocalBounds();
         fader.setBounds(bounds);
-        horizontalMeterL.setBounds(bounds.removeFromLeft(10));
-        horizontalMeterR.setBounds(bounds.removeFromRight(10));
+        verticalMeterL.setBounds(bounds.removeFromLeft(10));
+        verticalMeterR.setBounds(bounds.removeFromRight(10));
         
         
     }
@@ -70,7 +70,7 @@ struct RightSection : juce::Component, public juce::Timer
 private:
     juce::Colour customColour;
     juce::CustomFader myCustomLNF2;
-    Gui::HorizontalMeter3 horizontalMeterL, horizontalMeterR;
+    Gui::VerticalMeter verticalMeterL, verticalMeterR;
     Assesment2AudioProcessor& processor;
     juce::Slider fader;
     using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;

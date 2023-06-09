@@ -14,6 +14,7 @@
     </GROUP>
     <GROUP id="{6A9D38C8-E7D6-1058-F7D7-B9710907924B}" name="Source">
       <GROUP id="{2A51E711-DD6B-9675-421C-B17ADE777308}" name="GUI">
+        <FILE id="TptbPk" name="BandControls.h" compile="0" resource="0" file="Source/GUI/BandControls.h"/>
         <FILE id="hYmeTt" name="Colours.h" compile="0" resource="0" file="Source/GUI/Colours.h"/>
         <FILE id="sfwpKB" name="CustomUI.cpp" compile="1" resource="0" file="Source/GUI/CustomUI.cpp"/>
         <FILE id="PwZqhr" name="CustomUI.h" compile="0" resource="0" file="Source/GUI/CustomUI.h"/>

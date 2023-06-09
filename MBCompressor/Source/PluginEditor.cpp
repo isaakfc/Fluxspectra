@@ -11,94 +11,10 @@
 
 
 
-template<typename T>
-bool truncateKiloValue(T& value)
-{
-    if(value > static_cast<T>(999))
-    {
-        value /= static_cast<T>(1000);
-        return true;
-    }
-    return false;
-}
-
-
-juce::String getValString(juce::RangedAudioParameter& param, bool getLow, juce::String suffix)
-{
-    juce::String str;
-    
-    
-    auto val = getLow ? param.getNormalisableRange().start : param.getNormalisableRange().end;
-    
-    bool useK = truncateKiloValue(val);
-    
-    str << val;
-    
-    if (useK)
-    {
-        str << "k";
-    }
-    
-    str << suffix;
-    
-    return str;
-}
-
-
-
-
-//GlobalControls::GlobalControls(juce::AudioProcessorValueTreeState& apvts)
-//{
-//    
-//    addAndMakeVisible(mixSlider);
-//    addAndMakeVisible(crossoverSlider);
-//    
-//    mixAttachment = std::make_unique<Attachment>(apvts,ParamIDs::mix,mixSlider);
-//    crossoverAttachment = std::make_unique<Attachment>(apvts,ParamIDs::crossover,crossoverSlider);
-//}
-
-
-//void GlobalControls::paint(juce::Graphics &g)
-//{
-//    using namespace juce;
-//    auto bounds = getLocalBounds();
-//    g.setColour(Colours::white.darker(0.3));
-//    g.fillAll();
-//    
-//    
-//    bounds.reduce(3, 3);
-//    g.setColour(MyColours::background);
-//    g.fillRoundedRectangle(bounds.toFloat(), 5);
-//    
-//    
-//    
-//
-//}
-
-//void GlobalControls::resized()
-//{
-//    auto bounds = getLocalBounds();
-//    bounds = bounds.removeFromBottom(180);
-//    using namespace juce;
-//
-//    FlexBox flexBox;
-//    flexBox.flexDirection = FlexBox::Direction::column;
-//    flexBox.flexWrap = FlexBox::Wrap::noWrap;
-//
-//
-//
-//    flexBox.items.add(FlexItem(mixSlider).withFlex(1.f));
-//    flexBox.items.add(FlexItem(crossoverSlider).withFlex(1.f));
-//
-//    flexBox.performLayout(bounds);
-//
-//}
-
-
 
 //==============================================================================
 Assesment2AudioProcessorEditor::Assesment2AudioProcessorEditor (Assesment2AudioProcessor& p)
-: AudioProcessorEditor (&p), topBand(MyColours::black), spectrogramBand(MyColours::background),bottomBand(juce::Colours::white), audioProcessor (p), leftBand(MyColours::black, p),rightBand(MyColours::black, p)
+: AudioProcessorEditor (&p), topBand(MyColours::black), spectrogramBand(MyColours::background), audioProcessor (p), leftBand(MyColours::black, p),rightBand(MyColours::black, p), bottomBand(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.

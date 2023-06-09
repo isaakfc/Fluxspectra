@@ -24,6 +24,8 @@ namespace ParamIDs
     inline constexpr auto ratioLb { "Ratio Low Band" };
     inline constexpr auto ratioHb { "Ratio High Band" };
     inline constexpr auto gain { "Input Gain" };
+    inline constexpr auto gainHb { "High band Gain" };
+    inline constexpr auto gainLb { "Low band Gain" };
     inline constexpr auto makeup { "Makeup Gain" };
     inline constexpr auto mode { "Compression On" };
     inline constexpr auto source { "Sidechain Input" };

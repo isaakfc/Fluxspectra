@@ -144,6 +144,145 @@ public:
 
 
 
+// for band controls
+
+class CustomDial : public juce::LookAndFeel_V4
+    {
+        public:
+        CustomDial();
+        
+        void drawRotarySlider
+        (
+         juce::Graphics &g,
+            int x,
+            int y,
+            int width,
+            int height,
+            float sliderPos,
+            float rotaryStartAngle,
+            float rotaryEndAngle,
+         juce::Slider &slider
+         ) override;
+        
+        void drawLabel (juce::Graphics& g, juce::Label& label) override;
+        
+        enum class ValueType
+        {
+            kInt,
+            kFloat
+        };
+        
+        ValueType getDialValueType()
+        {
+            return _dialValueType;
+        }
+        
+        void setDialValueType(ValueType newValueType)
+        {
+            _dialValueType = newValueType;
+        }
+        
+    private:
+
+        float _sliderWidth;
+        juce::String _sliderName = "";
+        
+        ValueType _dialValueType = ValueType::kFloat;
+    };
+
+
+
+class DialBc  : public juce::Component
+{
+public:
+    
+    DialBc (const juce::String& sliderName, const juce::String& suffix);
+    ~DialBc() override;
+    
+    void paint (juce::Graphics&) override;
+    void resized() override;
+    
+    void setDialTextBoxWidth(const float newWidth);
+    void setDialColors(juce::Colour mainText,
+                       juce::Colour widgetFill,
+                       juce::Colour auxBG,
+                       juce::Colour auxText);
+    
+    juce::Slider& getSlider()
+    {
+        return dial;
+    }
+    
+    enum class ValueType
+    {
+        kInt,
+        kFloat
+    };
+    
+    void setDialValueType(CustomDial::ValueType newValueType);
+
+private:
+    CustomDial _customDial;
+    juce::Slider dial;
+    
+private:
+    
+    
+private:
+    juce::Colour _mainBackgroundColor = juce::Colour::fromRGB(33, 37, 43);
+    juce::Colour _mainTextColor = juce::Colours::black;
+//    juce::Colour _widgetFillColor = juce::Colour::fromRGB(161, 168, 181).darker(0.3f);
+    juce::Colour _widgetFillColor = MyColours::blue;
+    juce::Colour _auxBackgroundColor = _mainBackgroundColor.darker(1.0);
+    juce::Colour _auxTextColor = juce::Colour::fromRGB(74, 81, 98).darker(0.5);
+    juce::Colour _blackBackgroundColor = juce::Colour::fromRGB(33, 35, 37);
+    
+}; // class
+
+
+
+
+
+
+class TabLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    TabLookAndFeel() {}
+
+    void drawTabButton(juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown) override
+    {
+        auto area = button.getActiveArea();
+
+        if (button.isFrontTab())
+            g.setColour(MyColours::blue);
+        else
+            g.setColour(MyColours::logotext);
+
+        if (isMouseDown || isMouseOver)
+            g.setColour(MyColours::blue.brighter(0.99));
+
+        g.fillRect(area);
+        
+
+        LookAndFeel_V4::drawTabButtonText(button, g, isMouseOver, isMouseDown);
+    }
+    
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
