@@ -18,6 +18,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     const auto ratioRange = juce::NormalisableRange<float> { 1.0f, 30.0f, 0.1f, 1.0f };
     const auto crossoverRange = juce::NormalisableRange<float> { 40.0f, 20000.0f, 1.f, 0.3f };
     const auto mixRange = juce::NormalisableRange<float> { 0.0f, 100.0f, 1.f, 1.0f };
+    const auto delayRange = juce::NormalisableRange<float> { 1.0f, 30.0f, 0.1f, 1.0f };
+    const auto gainRange = juce::NormalisableRange<float> { -12.0f, 24.0f, 0.1f, 0.3f };
     // Audio parameter floats
     // Multiband float Parameters
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::attackLb, 1),
@@ -71,23 +73,19 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
     // General float Parameters
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::gain, 1),
                                                             ParamIDs::gain,
-                                                            -12.0f,
-                                                            24.0f,
+                                                            gainRange,
                                                             0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::makeup, 1),
                                                             ParamIDs::makeup,
-                                                            -12.0f,
-                                                            24.0f,
+                                                            gainRange,
                                                             0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::gainLb, 1),
                                                             ParamIDs::gainLb,
-                                                            -12.0f,
-                                                            24.0f,
+                                                            gainRange,
                                                             0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::gainHb, 1),
                                                             ParamIDs::gainHb,
-                                                            -12.0f,
-                                                            24.0f,
+                                                            gainRange,
                                                             0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::crossover, 1),
                                                             ParamIDs::crossover,
@@ -95,8 +93,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
                                                             2000.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::delay, 1),
                                                             ParamIDs::delay,
-                                                            1.0f,
-                                                            20.0f,
+                                                            delayRange,
                                                             1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat> (juce::ParameterID(ParamIDs::mix, 1),
                                                             ParamIDs::mix,
@@ -258,23 +255,18 @@ void Assesment2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     rbufferVec.clear();
     lRLowPassVec.clear();
     lRHighPassVec.clear();
-    ButterLowPassVec.clear();
-    ButterHighPassVec.clear();
-    lR4LowPassVec.clear();
-    lR4HighPassVec.clear();
     dynamicsVec.clear();
     for (int i = 0; i < totalNumInputChannels; i++)
     {
         rbufferVec.push_back(RingBuffer(maxDelay + 3));
         lRLowPassVec.push_back(LinkwitzRiley2ndOrderLowPass(crossoverFreq->get(), sampleRate));
-        lRLowPassVec.push_back(LinkwitzRiley2ndOrderLowPass(crossoverFreq->get(), sampleRate));
         lRHighPassVec.push_back(LinkwitzRiley2ndOrderHighPass(crossoverFreq->get(), sampleRate));
-        lRHighPassVec.push_back(LinkwitzRiley2ndOrderHighPass(crossoverFreq->get(), sampleRate));
-        lR4LowPassVec.push_back(LinkwitzRiley4thOrderLowPass(crossoverFreq->get(), sampleRate));
-        lR4HighPassVec.push_back(LinkwitzRiley4thOrderHighPass(crossoverFreq->get(), sampleRate));
         dynamicsVec.push_back(DynamicsEngine(sampleRate));
         dynamicsVec.push_back(DynamicsEngine(sampleRate));
     }
+    
+    leftChannelFifo.prepare(samplesPerBlock);
+    rightChannelFifo.prepare(samplesPerBlock);
     
     rmsLevelLeft.reset(sampleRate, 0.5);
     rmsLevelRight.reset(sampleRate, 0.5);
@@ -284,6 +276,7 @@ void Assesment2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     rmsLevelRightLB.reset(sampleRate, 0.5);
     rmsLevelLeftUB.reset(sampleRate, 0.5);
     rmsLevelRightUB.reset(sampleRate, 0.5);
+    delaySmooth2.reset(sampleRate, 1);
     
     rmsLevelLeft.setCurrentAndTargetValue(-100.f);
     rmsLevelRight.setCurrentAndTargetValue(-100.f);
@@ -336,12 +329,19 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     juce::AudioBuffer<float> lowerBandBuffer(totalNumInputChannels, buffer.getNumSamples());
     juce::AudioBuffer<float> upperBandBuffer(totalNumInputChannels, buffer.getNumSamples());
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-    {
-        buffer.clear (i, 0, buffer.getNumSamples());
-        lowerBandBuffer.clear (i, 0, buffer.getNumSamples());
-        upperBandBuffer.clear (i, 0, buffer.getNumSamples());
-    }
+//    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+//    {
+//        buffer.clear (i, 0, buffer.getNumSamples());
+//        lowerBandBuffer.clear (i, 0, buffer.getNumSamples());
+//        upperBandBuffer.clear (i, 0, buffer.getNumSamples());
+//    }
+    
+    // Spectrum analyser
+    
+    leftChannelFifo.update(buffer);
+    rightChannelFifo.update(buffer);
+    delaySmooth2.setTargetValue(delay->get());
+    
 //     Check if a sidechain input is available
     if (getTotalNumInputChannels() > getMainBusNumInputChannels() && sidechain->get())
     {
@@ -386,14 +386,8 @@ void Assesment2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     updateRms(lowerBandBuffer, rmsLevelLeftLB, rmsLevelRightLB);
     updateRms(upperBandBuffer, rmsLevelLeftUB, rmsLevelRightUB);
     
-//    for (auto i = 0; i < totalNumOutputChannels; ++i)
-//    {
-//        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-//        {
-//            DBG(lowerBandBuffer.getSample(i, sample));
-//        }
-//    }
-    
+    leftChannelFifo.update(buffer);
+    rightChannelFifo.update(buffer);
 }
 
 //==============================================================================
@@ -467,7 +461,7 @@ float Assesment2AudioProcessor::processCore(float inputSample, float sideChainIn
     //Look-ahead delay processing
     if(delayOn->get())
     {
-        float delaySamples = (delay->get()/1000) * mSampleRate;
+        float delaySamples = (delaySmooth2.getNextValue()/1000) * mSampleRate;
         processingSample = rbufferVec[channel].readInterp(delaySamples);
     }
     rbufferVec[channel].write(inputSample);
@@ -482,8 +476,8 @@ float Assesment2AudioProcessor::processCore(float inputSample, float sideChainIn
     lowerBand = lowerBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
     upperBand = upperBand * juce::Decibels::decibelsToGain(inputGain->get()) * 0.75;
     // Apply band gain
-//    lowerBand = lowerBand * juce::Decibels::decibelsToGain(lbGain->get());
-//    upperBand = upperBand * juce::Decibels::decibelsToGain(hbGain->get());
+    lowerBand = lowerBand * juce::Decibels::decibelsToGain(lbGain->get());
+    upperBand = upperBand * juce::Decibels::decibelsToGain(hbGain->get());
     lowerBandBuffer.setSample(channel, sampleIndex, lowerBand);
     upperBandBuffer.setSample(channel, sampleIndex, upperBand);
     float joinedInputBands = lowerBand + upperBand * -1;
@@ -508,7 +502,8 @@ float Assesment2AudioProcessor::processCore(float inputSample, float sideChainIn
     outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
     outputSample = outputSample * juce::Decibels::decibelsToGain(makeupGain->get());
     float processedMix = mix->get() / 100;
-    return (1-processedMix) * joinedInputBands + processedMix * outputSample;
+    float finalOutput = (1.f-processedMix) * joinedInputBands + processedMix * outputSample;
+    return finalOutput;
     
     
     

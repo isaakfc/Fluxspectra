@@ -48,17 +48,3 @@ void RingBuffer::reset(int size, int pos)
 }
 
 
-double RingBuffer::readInterp3(double delay)
-{
-    int samples = int(delay); double x = read(samples);
-    double x_1 = read(samples - 1);
-    double x_2 = read(samples - 2);
-    double x1 = read(samples + 1);
-    double x2 = read(samples + 2);
-    double frac = delay - samples;
-    double c0 = x2 - x1 - x_1 + x;
-    double c1 = x_1 - x - c0;
-    double c2 = x1 - x_1;
-    double c3 = x;
-    return c0 * pow(frac, 3) + c1* pow(frac, 2) + c2 * frac + c3;
-}

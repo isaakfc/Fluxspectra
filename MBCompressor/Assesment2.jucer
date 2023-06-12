@@ -14,15 +14,32 @@
     </GROUP>
     <GROUP id="{6A9D38C8-E7D6-1058-F7D7-B9710907924B}" name="Source">
       <GROUP id="{2A51E711-DD6B-9675-421C-B17ADE777308}" name="GUI">
+        <FILE id="q8zTYt" name="AnalyserPathGenerator.h" compile="0" resource="0"
+              file="Source/GUI/AnalyserPathGenerator.h"/>
         <FILE id="TptbPk" name="BandControls.h" compile="0" resource="0" file="Source/GUI/BandControls.h"/>
         <FILE id="hYmeTt" name="Colours.h" compile="0" resource="0" file="Source/GUI/Colours.h"/>
         <FILE id="sfwpKB" name="CustomUI.cpp" compile="1" resource="0" file="Source/GUI/CustomUI.cpp"/>
         <FILE id="PwZqhr" name="CustomUI.h" compile="0" resource="0" file="Source/GUI/CustomUI.h"/>
+        <FILE id="nyZnGG" name="FFTDataGenerator.h" compile="0" resource="0"
+              file="Source/GUI/FFTDataGenerator.h"/>
         <FILE id="CHAX1E" name="GlobalControls.h" compile="0" resource="0"
               file="Source/GUI/GlobalControls.h"/>
         <FILE id="he4X8J" name="LeftSection.h" compile="0" resource="0" file="Source/GUI/LeftSection.h"/>
         <FILE id="s8qP63" name="LogoAndTitle.h" compile="0" resource="0" file="Source/GUI/LogoAndTitle.h"/>
+        <FILE id="qLJrEi" name="PathProducer.cpp" compile="1" resource="0"
+              file="Source/GUI/PathProducer.cpp"/>
+        <FILE id="cTIpJn" name="PathProducer.h" compile="0" resource="0" file="Source/GUI/PathProducer.h"/>
         <FILE id="Aw64QV" name="RightSection.h" compile="0" resource="0" file="Source/GUI/RightSection.h"/>
+        <FILE id="mcPfBL" name="SpectrogramBand.cpp" compile="1" resource="0"
+              file="Source/GUI/SpectrogramBand.cpp"/>
+        <FILE id="EqiYRN" name="SpectrogramBand.h" compile="0" resource="0"
+              file="Source/GUI/SpectrogramBand.h"/>
+        <FILE id="Po2Vxp" name="SpectrumAnalyser.cpp" compile="1" resource="0"
+              file="Source/GUI/SpectrumAnalyser.cpp"/>
+        <FILE id="QTsF5j" name="SpectrumAnalyser.h" compile="0" resource="0"
+              file="Source/GUI/SpectrumAnalyser.h"/>
+        <FILE id="YjzS29" name="Utilities.cpp" compile="1" resource="0" file="Source/GUI/Utilities.cpp"/>
+        <FILE id="Erb5Sf" name="Utilities.h" compile="0" resource="0" file="Source/GUI/Utilities.h"/>
         <FILE id="WlCngP" name="VerticalMeter.h" compile="0" resource="0" file="Source/GUI/VerticalMeter.h"/>
       </GROUP>
       <FILE id="JV4Igj" name="ParamsIDs.h" compile="0" resource="0" file="Source/ParamsIDs.h"/>
@@ -35,6 +52,9 @@
       <FILE id="Aio56n" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="ajeP07" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
       <GROUP id="{7EA9E6CC-251A-3790-9702-244EE32B436C}" name="DSP">
+        <FILE id="A1Sfak" name="SingleChannelSampleFifo.h" compile="0" resource="0"
+              file="Source/DSP/SingleChannelSampleFifo.h"/>
+        <FILE id="vPGOvq" name="Fifo.h" compile="0" resource="0" file="Source/DSP/Fifo.h"/>
         <FILE id="GYvrEX" name="DynamicsEngine.cpp" compile="1" resource="0"
               file="Source/DSP/DynamicsEngine.cpp"/>
         <FILE id="MEaCzc" name="DynamicsEngine.h" compile="0" resource="0"
@@ -43,10 +63,6 @@
               file="Source/DSP/LinkwitzRileyFilters.cpp"/>
         <FILE id="e6fSjK" name="LinkwitzRileyFilters.h" compile="0" resource="0"
               file="Source/DSP/LinkwitzRileyFilters.h"/>
-        <FILE id="iiukxJ" name="ButterworthFilters.cpp" compile="1" resource="0"
-              file="Source/DSP/ButterworthFilters.cpp"/>
-        <FILE id="qrw93G" name="ButterworthFilters.h" compile="0" resource="0"
-              file="Source/DSP/ButterworthFilters.h"/>
         <FILE id="c1dqA0" name="RingBuffer.cpp" compile="1" resource="0" file="Source/DSP/RingBuffer.cpp"/>
         <FILE id="MYxHtu" name="RingBuffer.h" compile="0" resource="0" file="Source/DSP/RingBuffer.h"/>
       </GROUP>

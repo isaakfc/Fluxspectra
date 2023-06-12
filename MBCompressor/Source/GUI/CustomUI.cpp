@@ -161,7 +161,8 @@ namespace juce
 //        juce::Font font2 (juce::Font (juce::Typeface::createSystemTypefaceFor (BinaryData::LexendPetaBold_ttf,
 //                                                                                BinaryData::LexendPetaBold_ttfSize)));
         g.setColour (MyColours::black);
-        g.setFont (getFont());
+        const juce::Font font (juce::Font ("Helvetica", 12, juce::Font::FontStyleFlags::bold));
+        g.setFont (font);
         g.setFont(18.0f);
     }
 
@@ -174,17 +175,19 @@ void CustomDial2::drawLabel(juce::Graphics& g, juce::Label& label)
         {
             auto alpha = label.isEnabled() ? 1.0f : 0.5f;
             const juce::Font font(getLabelFont(label));
+//            const juce::Font font (juce::Font ("Helvetica", 12, juce::Font::FontStyleFlags::bold));
 
             g.setColour(label.findColour(juce::Label::textColourId).withMultipliedAlpha(alpha));
             g.setFont(font);
 
             juce::Rectangle<int> textArea(label.getBorderSize().subtractedFrom(label.getLocalBounds()));
             
-            juce::Font font2 (juce::Font (juce::Typeface::createSystemTypefaceFor (BinaryData::LexendPetaBold_ttf,
-                                                                                    BinaryData::LexendPetaBold_ttfSize)));
+//            juce::Font font2 (juce::Font (juce::Typeface::createSystemTypefaceFor (BinaryData::LexendPetaBold_ttf,
+//                                                                                    BinaryData::LexendPetaBold_ttfSize)));
+            const juce::Font font2 (juce::Font ("Helvetica", 12, juce::Font::FontStyleFlags::plain));
             g.setColour (MyColours::black);
             g.setFont (font2);
-            g.setFont(18.0f);
+            g.setFont(12.0f);
 
             g.drawFittedText(label.getText(), textArea, label.getJustificationType(),
                              jmax(1, (int) (textArea.getHeight() / font.getHeight())),
@@ -281,7 +284,7 @@ CustomFader::CustomFader()
         if (! label.isBeingEdited())
         {
             auto alpha = label.isEnabled() ? 1.0f : 0.5f;
-            const juce::Font font (juce::Font ("Helvetica", _sliderWidth * 0.1, juce::Font::FontStyleFlags::bold));
+            const juce::Font font (juce::Font ("Helvetica", _sliderWidth * 0.4, juce::Font::FontStyleFlags::bold));
 
             g.setColour (label.findColour (juce::Label::textColourId).withMultipliedAlpha (alpha));
             g.setFont (font);
@@ -439,7 +442,7 @@ void CustomDial::drawRotarySlider
     //dialRadius = std:: max (dialRadius - 4.0f, 10.0f);
     
     /** Dial outline color*/
-    g.setColour (dialOutlineColor);
+    g.setColour (juce::Colours::black);
     
     auto scale = 2.0f;
     
@@ -465,7 +468,7 @@ void CustomDial::drawRotarySlider
     g.strokePath (dialValueTrack, juce::PathStrokeType (lineWidth, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     
     /** Dial tick color*/
-    g.setColour (dialOutlineColor);
+    g.setColour (juce::Colours::black);
     juce::Path dialTick;
     dialTick.startNewSubPath (centre.getPointOnCircumference (dialRadius - lineWidth, toAngle));
     
@@ -606,7 +609,10 @@ void DialBc::setDialValueType(CustomDial::ValueType newValueType)
 }
 
 
-
+void DialBc::setDialSide()
+{
+    dial.setTextBoxStyle(juce::Slider::TextBoxLeft, false, 80, 32);
+}
 
 
 

@@ -43,30 +43,4 @@ protected:
 };
 
 
-class LinkwitzRiley4thOrderLowPass
-{
-public:
-    LinkwitzRiley4thOrderLowPass(float cutoff, int sampleRate);
-    void updateCoefs(float cutoff);
-    float process(float input);
-protected:
-    double a0, a1, a2, a3, a4;
-    double b1, b2, b3, b4;
-    double xm1, xm2, xm3, xm4;
-    double ym1, ym2, ym3, ym4;
-    int mSampleRate;
-};
 
-class LinkwitzRiley4thOrderHighPass
-{
-public:
-    LinkwitzRiley4thOrderHighPass(float cutoff, int sampleRate);
-    void updateCoefs(float cutoff);
-    float process(float input);
-protected:
-    double a0, a1, a2, a3, a4;
-    double b1, b2, b3, b4;
-    double xm1, xm2, xm3, xm4;
-    double ym1, ym2, ym3, ym4;
-    int mSampleRate;
-};

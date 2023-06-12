@@ -39,45 +39,17 @@ void DynamicsEngine::setParameters(bool compOn, bool feedback, bool peakOn,float
 float DynamicsEngine::process(float input, float sideChain)
 {
     float output = 0;
-    
-//    switch (mCompressionOn)
-//    {
-//        case true:
-//        {
-//            if (mPeakOn == true)
-//            {
-//                output = processPeakCompressor(input, sideChain);
-//            }
-//            else
-//            {
-//                output = processRMSCompressor(input, sideChain);
-//            }
-//        }
-//            break;
-//        case false:
-//        {
-//            if (mPeakOn == true)
-//            {
-//                output = processPeakLimiter(input, sideChain);
-//            }
-//            else
-//            {
-//                output = processRMSLimiter(input, sideChain);
-//            }
-//        }
-//            break;
-//    }
-    
+        
     if (mCompressionOn)
     {
         if (mPeakOn)
         {
-//            std::cout << "PEAK COMPRESSION" << std::endl;
+            std::cout << "PEAK COMPRESSION" << std::endl;
             output = processPeakCompressor(input, sideChain);
         }
         else
         {
-//            std::cout << "RMS COMPRESSION" << std::endl;
+            std::cout << "RMS COMPRESSION" << std::endl;
             output = processRMSCompressor(input, sideChain);
         }
     }
@@ -85,12 +57,12 @@ float DynamicsEngine::process(float input, float sideChain)
     {
         if (mPeakOn)
         {
-//            std::cout << "PEAK LIMITING" << std::endl;
+            std::cout << "PEAK LIMITING" << std::endl;
             output = processPeakLimiter(input, sideChain);
         }
         else
         {
-//            std::cout << "RMS LIMITING" << std::endl;
+            std::cout << "RMS LIMITING" << std::endl;
             output = processRMSLimiter(input, sideChain);
         }
     }

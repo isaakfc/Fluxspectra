@@ -19,6 +19,8 @@
 #include "GUI/RightSection.h"
 #include "GUI/GlobalControls.h"
 #include "GUI/BandControls.h"
+#include "GUI/SpectrogramBand.h"
+#include "GUI/SpectrumAnalyser.h"
 //==============================================================================
 
 //const juce::Font& Assesment2AudioProcessorEditor::getWackyFont()
@@ -27,6 +29,16 @@
 //                                                                BinaryData::LexendPetaRegular_ttfSize)));
 //    return wacky;
 //}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -72,7 +84,7 @@ private:
 //     access the processor object that created it.
     juce::CustomDial2 myCustomLNF;
     juce::CustomFader myCustomLNF2;
-    Placeholder topBand, spectrogramBand;
+    Placeholder topBand;
     juce::Label mySliderLabel;
     Assesment2AudioProcessor& audioProcessor;
 //    juce::Image logo;
@@ -81,8 +93,9 @@ private:
     leftSection leftBand;
     RightSection rightBand;
     GlobalControls globalBand { audioProcessor.parameters };
+    spectrogramBand spectrogramBand;
     BandControls bottomBand;
-    
+    SpectrumAnalyser analyzer{audioProcessor};
     
     
     

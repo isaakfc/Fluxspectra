@@ -25,6 +25,9 @@ struct LowerBand : public juce::Component, public juce::Timer
         addAndMakeVisible(releaseDial);
         addAndMakeVisible(kneeDial);
         startTimerHz(24);
+        fader.setTextBoxStyle(juce::Slider::TextBoxAbove, false, 30, 15);
+        fader.setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+        fader.setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
         inputGain = std::make_unique<Attachment>(processor.parameters,ParamIDs::gainLb,fader);
         thresholdAttachment = std::make_unique<Attachment>(processor.parameters,ParamIDs::thresholdLb,thresholdDial.getSlider());
         ratioAttachment = std::make_unique<Attachment>(processor.parameters,ParamIDs::ratioLb,ratioDial.getSlider());
@@ -37,8 +40,10 @@ struct LowerBand : public juce::Component, public juce::Timer
     {
 
         auto bounds = getLocalBounds().removeFromRight(30);
+        bounds.removeFromTop(3);
         fader.setBounds(bounds);
         bounds = bounds.withTrimmedBottom(5);
+        bounds.removeFromTop(20);
         verticalMeterL.setBounds(bounds.removeFromLeft(10));
         verticalMeterR.setBounds(bounds.removeFromRight(10));
         int dialSize = 90;
@@ -79,6 +84,11 @@ struct LowerBand : public juce::Component, public juce::Timer
         bounds.reduce(3, 3);
         g.setColour(MyColours::background);
         g.fillRoundedRectangle(bounds.toFloat(), 5);
+        juce::Font font3 ("Helvetica", 20.0f, juce::Font::plain);
+        g.setFont(font3);
+        g.setFont(9.f);
+        g.setColour(juce::Colours::black);
+        g.drawFittedText("Db", getWidth()-25, 6, 20, 30, juce::Justification::centred, 1);
 //        g.fillAll(juce::Colours::black.brighter(0.5));
 
     }
@@ -118,6 +128,9 @@ public:
         addAndMakeVisible(releaseDial);
         addAndMakeVisible(kneeDial);
         startTimerHz(24);
+        fader.setTextBoxStyle(juce::Slider::TextBoxAbove, false, 30, 15);
+        fader.setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+        fader.setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
         inputGain = std::make_unique<Attachment>(processor.parameters,ParamIDs::gainHb,fader);
         thresholdAttachment = std::make_unique<Attachment>(processor.parameters,ParamIDs::thresholdHb,thresholdDial.getSlider());
         ratioAttachment = std::make_unique<Attachment>(processor.parameters,ParamIDs::ratioHb,ratioDial.getSlider());
@@ -129,8 +142,10 @@ public:
     void resized() override
     {
         auto bounds = getLocalBounds().removeFromRight(30);
+        bounds.removeFromTop(3);
         fader.setBounds(bounds);
         bounds = bounds.withTrimmedBottom(5);
+        bounds.removeFromTop(20);
         verticalMeterL.setBounds(bounds.removeFromLeft(10));
         verticalMeterR.setBounds(bounds.removeFromRight(10));
         int dialSize = 90;
@@ -171,12 +186,17 @@ public:
         bounds.reduce(3, 3);
         g.setColour(MyColours::background);
         g.fillRoundedRectangle(bounds.toFloat(), 5);
+        juce::Font font3 ("Helvetica", 20.0f, juce::Font::plain);
+        g.setFont(font3);
+        g.setFont(9.f);
+        g.setColour(juce::Colours::black);
+        g.drawFittedText("Db", getWidth()-25, 6, 20, 30, juce::Justification::centred, 1);
 
     }
     void timerCallback() override
     {
-        verticalMeterL.setLevel(processor.getRMSLb(0));
-        verticalMeterR.setLevel(processor.getRMSLb(1));
+        verticalMeterL.setLevel(processor.getRMSUb(0));
+        verticalMeterR.setLevel(processor.getRMSUb(1));
         verticalMeterL.repaint();
         verticalMeterR.repaint();
     }

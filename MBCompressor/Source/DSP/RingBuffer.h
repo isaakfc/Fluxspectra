@@ -19,7 +19,6 @@ public:
     void write(double val);
     void reset(int size, int pos);
     double readInterp(double delay);
-    double readInterp3(double delay);
 private:
     std::vector<double> mBuffer;
     int mPos;

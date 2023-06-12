@@ -203,6 +203,7 @@ public:
     void resized() override;
     
     void setDialTextBoxWidth(const float newWidth);
+    void setDialSide();
     void setDialColors(juce::Colour mainText,
                        juce::Colour widgetFill,
                        juce::Colour auxBG,

@@ -25,6 +25,8 @@ struct leftSection : juce::Component, public juce::Timer
         addAndMakeVisible(fader);
         startTimerHz(24);
         inputGain = std::make_unique<Attachment>(processor.parameters,ParamIDs::gain,fader);
+        fader.setTextBoxStyle(juce::Slider::TextBoxAbove, false, 70, 20);
+        fader.setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
 
 
 
@@ -32,6 +34,11 @@ struct leftSection : juce::Component, public juce::Timer
     void paint(juce::Graphics& g) override
     {
         g.fillAll(customColour);
+        juce::Font font3 ("Helvetica", 20.0f, juce::Font::plain);
+        g.setFont(font3);
+        g.setFont(9.f);
+        g.setColour(juce::Colours::white);
+        g.drawFittedText("Db", 5, 8, 20, 30, juce::Justification::centred, 1);
 
     }
     void timerCallback() override
@@ -45,6 +52,7 @@ struct leftSection : juce::Component, public juce::Timer
     {
         auto bounds = getLocalBounds();
         fader.setBounds(bounds);
+        bounds.removeFromTop(25);
         verticalMeterL.setBounds(bounds.removeFromLeft(10));
         verticalMeterR.setBounds(bounds.removeFromRight(10));
         

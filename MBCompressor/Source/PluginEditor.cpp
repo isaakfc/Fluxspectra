@@ -12,9 +12,94 @@
 
 
 
+
+
+void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
+{
+    juce::AudioBuffer<float> tempIncomingBuffer;
+    while( leftChannelFifo->getNumCompleteBuffersAvailable() > 0 )
+    {
+        if( leftChannelFifo->getAudioBuffer(tempIncomingBuffer) )
+        {
+            auto size = tempIncomingBuffer.getNumSamples();
+
+            juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
+                                              monoBuffer.getReadPointer(0, size),
+                                              monoBuffer.getNumSamples() - size);
+
+            juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size),
+                                              tempIncomingBuffer.getReadPointer(0, 0),
+                                              size);
+            
+            leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.f);
+        }
+    }
+    
+    const auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
+    const auto binWidth = sampleRate / double(fftSize);
+
+    while( leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0 )
+    {
+        std::vector<float> fftData;
+        if( leftChannelFFTDataGenerator.getFFTData( fftData) )
+        {
+            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
+        }
+    }
+    
+    while( pathProducer.getNumPathsAvailable() > 0 )
+    {
+        pathProducer.getPath( leftChannelFFTPath );
+    }
+}
+
+void SpectrumAnalyser::timerCallback()
+{
+    if( shouldShowFFTAnalysis )
+    {
+        auto fftBounds = getAnalysisArea().toFloat();
+        auto sampleRate = audioProcessor.getSampleRate();
+        
+        leftPathProducer.process(fftBounds, sampleRate);
+        rightPathProducer.process(fftBounds, sampleRate);
+    }
+
+    if( parametersChanged.compareAndSetBool(false, true) )
+    {
+
+    }
+    
+    repaint();
+}
+
+
+
+juce::Rectangle<int> SpectrumAnalyser::getRenderArea()
+{
+    auto bounds = getLocalBounds();
+    
+    bounds.removeFromTop(12);
+    bounds.removeFromBottom(2);
+    bounds.removeFromLeft(20);
+    bounds.removeFromRight(20);
+    
+    return bounds;
+}
+
+
+juce::Rectangle<int> SpectrumAnalyser::getAnalysisArea()
+{
+    auto bounds = getRenderArea();
+    bounds.removeFromTop(4);
+    bounds.removeFromBottom(4);
+    return bounds;
+}
+//==============================================================================
+
+
 //==============================================================================
 Assesment2AudioProcessorEditor::Assesment2AudioProcessorEditor (Assesment2AudioProcessor& p)
-: AudioProcessorEditor (&p), topBand(MyColours::black), spectrogramBand(MyColours::background), audioProcessor (p), leftBand(MyColours::black, p),rightBand(MyColours::black, p), bottomBand(p)
+: AudioProcessorEditor (&p), topBand(MyColours::black), audioProcessor (p), leftBand(MyColours::black, p), rightBand(MyColours::black, p),spectrogramBand(p), bottomBand(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -26,6 +111,7 @@ Assesment2AudioProcessorEditor::Assesment2AudioProcessorEditor (Assesment2AudioP
     addAndMakeVisible(leftBand);
     addAndMakeVisible(bottomBand);
     addAndMakeVisible(spectrogramBand);
+    addAndMakeVisible(analyzer);
     
     // Custom Slider Code
 //    mySlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
@@ -74,7 +160,8 @@ void Assesment2AudioProcessorEditor::resized()
     globalBand.setBounds(bounds.removeFromRight(150));
     bottomBand.setBounds(bounds.removeFromBottom(130));
     spectrogramBand.setBounds(bounds);
-    
+    bounds.reduce(5, 5);
+    analyzer.setBounds(bounds);
     
     
     bounds = getLocalBounds();
