@@ -234,3 +234,44 @@ void SpectrumAnalyser::parameterValueChanged(int parameterIndex, float newValue)
 {
     parametersChanged.set(true);
 }
+
+void SpectrumAnalyser::timerCallback()
+{
+    if( shouldShowFFTAnalysis )
+    {
+        auto fftBounds = getAnalysisArea().toFloat();
+        auto sampleRate = audioProcessor.getSampleRate();
+        
+        leftPathProducer.process(fftBounds, sampleRate);
+        rightPathProducer.process(fftBounds, sampleRate);
+    }
+
+    if( parametersChanged.compareAndSetBool(false, true) )
+    {
+
+    }
+    
+    repaint();
+}
+
+
+juce::Rectangle<int> SpectrumAnalyser::getRenderArea()
+{
+    auto bounds = getLocalBounds();
+    
+    bounds.removeFromTop(12);
+    bounds.removeFromBottom(2);
+    bounds.removeFromLeft(20);
+    bounds.removeFromRight(20);
+    
+    return bounds;
+}
+
+
+juce::Rectangle<int> SpectrumAnalyser::getAnalysisArea()
+{
+    auto bounds = getRenderArea();
+    bounds.removeFromTop(4);
+    bounds.removeFromBottom(4);
+    return bounds;
+}
