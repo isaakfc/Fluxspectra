@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="HRRPX4" name="Fluxspectra" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginManufacturer="Semblance">
+  <MAINGROUP id="IhwDM2" name="Fluxspectra">
+    <GROUP id="{2AF98DA3-93B0-920F-A71F-DD4AEC3F47C8}" name="Assets">
+      <FILE id="oj2DCd" name="if-logo-new.png" compile="0" resource="1" file="Source/Assets/if-logo-new.png"/>
+      <FILE id="h2ouFR" name="LexendPeta-Bold.ttf" compile="0" resource="1"
+            file="Source/Assets/LexendPeta-Bold.ttf"/>
+      <FILE id="EEXdd5" name="LexendPeta-ExtraBold.ttf" compile="0" resource="1"
+            file="Source/Assets/LexendPeta-ExtraBold.ttf"/>
+      <FILE id="ePwnAY" name="LexendPeta-Regular.ttf" compile="0" resource="1"
+            file="Source/Assets/LexendPeta-Regular.ttf"/>
+    </GROUP>
+    <GROUP id="{6A9D38C8-E7D6-1058-F7D7-B9710907924B}" name="Source">
+      <GROUP id="{2A51E711-DD6B-9675-421C-B17ADE777308}" name="GUI">
+        <FILE id="q8zTYt" name="AnalyserPathGenerator.h" compile="0" resource="0"
+              file="Source/GUI/AnalyserPathGenerator.h"/>
+        <FILE id="TptbPk" name="BandControls.h" compile="0" resource="0" file="Source/GUI/BandControls.h"/>
+        <FILE id="hYmeTt" name="Colours.h" compile="0" resource="0" file="Source/GUI/Colours.h"/>
+        <FILE id="sfwpKB" name="CustomUI.cpp" compile="1" resource="0" file="Source/GUI/CustomUI.cpp"/>
+        <FILE id="PwZqhr" name="CustomUI.h" compile="0" resource="0" file="Source/GUI/CustomUI.h"/>
+        <FILE id="nyZnGG" name="FFTDataGenerator.h" compile="0" resource="0"
+              file="Source/GUI/FFTDataGenerator.h"/>
+        <FILE id="CHAX1E" name="GlobalControls.h" compile="0" resource="0"
+              file="Source/GUI/GlobalControls.h"/>
+        <FILE id="he4X8J" name="LeftSection.h" compile="0" resource="0" file="Source/GUI/LeftSection.h"/>
+        <FILE id="s8qP63" name="LogoAndTitle.h" compile="0" resource="0" file="Source/GUI/LogoAndTitle.h"/>
+        <FILE id="qLJrEi" name="PathProducer.cpp" compile="1" resource="0"
+              file="Source/GUI/PathProducer.cpp"/>
+        <FILE id="cTIpJn" name="PathProducer.h" compile="0" resource="0" file="Source/GUI/PathProducer.h"/>
+        <FILE id="Aw64QV" name="RightSection.h" compile="0" resource="0" file="Source/GUI/RightSection.h"/>
+        <FILE id="mcPfBL" name="SpectrogramBand.cpp" compile="1" resource="0"
+              file="Source/GUI/SpectrogramBand.cpp"/>
+        <FILE id="EqiYRN" name="SpectrogramBand.h" compile="0" resource="0"
+              file="Source/GUI/SpectrogramBand.h"/>
+        <FILE id="Po2Vxp" name="SpectrumAnalyser.cpp" compile="1" resource="0"
+              file="Source/GUI/SpectrumAnalyser.cpp"/>
+        <FILE id="QTsF5j" name="SpectrumAnalyser.h" compile="0" resource="0"
+              file="Source/GUI/SpectrumAnalyser.h"/>
+        <FILE id="YjzS29" name="Utilities.cpp" compile="1" resource="0" file="Source/GUI/Utilities.cpp"/>
+        <FILE id="Erb5Sf" name="Utilities.h" compile="0" resource="0" file="Source/GUI/Utilities.h"/>
+        <FILE id="WlCngP" name="VerticalMeter.h" compile="0" resource="0" file="Source/GUI/VerticalMeter.h"/>
+      </GROUP>
+      <FILE id="JV4Igj" name="ParamsIDs.h" compile="0" resource="0" file="Source/ParamsIDs.h"/>
+      <FILE id="BnRapg" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="JwG4su" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="m92FW2" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="Aio56n" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <GROUP id="{7EA9E6CC-251A-3790-9702-244EE32B436C}" name="DSP">
+        <FILE id="A1Sfak" name="SingleChannelSampleFifo.h" compile="0" resource="0"
+              file="Source/DSP/SingleChannelSampleFifo.h"/>
+        <FILE id="vPGOvq" name="Fifo.h" compile="0" resource="0" file="Source/DSP/Fifo.h"/>
+        <FILE id="GYvrEX" name="DynamicsEngine.cpp" compile="1" resource="0"
+              file="Source/DSP/DynamicsEngine.cpp"/>
+        <FILE id="MEaCzc" name="DynamicsEngine.h" compile="0" resource="0"
+              file="Source/DSP/DynamicsEngine.h"/>
+        <FILE id="tF2uE5" name="LinkwitzRileyFilters.cpp" compile="1" resource="0"
+              file="Source/DSP/LinkwitzRileyFilters.cpp"/>
+        <FILE id="e6fSjK" name="LinkwitzRileyFilters.h" compile="0" resource="0"
+              file="Source/DSP/LinkwitzRileyFilters.h"/>
+        <FILE id="c1dqA0" name="RingBuffer.cpp" compile="1" resource="0" file="Source/DSP/RingBuffer.cpp"/>
+        <FILE id="MYxHtu" name="RingBuffer.h" compile="0" resource="0" file="Source/DSP/RingBuffer.h"/>
+      </GROUP>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Fluxspectra"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Fluxspectra"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+</JUCERPROJECT>
